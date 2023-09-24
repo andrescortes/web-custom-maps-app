@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Feature, Place } from '../interfaces/places-interface';
+import { PlacesApiClient } from '../api';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -6,12 +9,14 @@ import { Injectable } from '@angular/core';
 export class PlacesService {
 
   public userLocation?: [number, number];
+  public isLoadingPlaces: boolean = false;
+  public places: Feature[] = [];
 
   get isUserLocationReady(): boolean {
     return !!this.userLocation;
   }
 
-  constructor() {
+  constructor(private readonly httpCLient: PlacesApiClient) {
     this.getUserLocation();
   }
 
@@ -29,5 +34,21 @@ export class PlacesService {
         },
       );
     });
+  }
+
+  getPlacesByQuery(query: string = ''): void {
+    if (!this.userLocation) return;
+
+    this.isLoadingPlaces = true;
+    let url: string = `/${query}.json`;
+
+    this.httpCLient.get<Place>(url, {
+      params: {
+        proximity: this.userLocation.join(','),
+      },
+    }).subscribe(({ features }) => {
+      this.isLoadingPlaces = false;
+      this.places = features;
+    })
   }
 }
