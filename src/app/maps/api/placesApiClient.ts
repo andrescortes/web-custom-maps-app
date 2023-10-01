@@ -20,7 +20,7 @@ export class PlacesApiClient extends HttpClient {
   }): Observable<T> {
     return super.get<T>(`${this.baseUrl}/${url}`, {
       params: {
-        limit: "1",
+        limit: "5",
         language: "es",
         access_token: environment.mapboxToken,
         ...options.params
